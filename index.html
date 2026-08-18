@@ -1,12 +1,712 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jjssoo — Product Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#FFFFFF;
+    --black:#121214;
+    --ink:#1D1D1F;
+    --gray:#6E6E73;
+    --line:#E5E5EA;
+    --surface:#F5F5F7;
+    --accent:#0071E3;
+    --accent-deep:#0058B0;
+    --max:1180px;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--white);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--ink);color:var(--white);}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 32px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  h1,h2,h3{
+    font-weight:800;
+    letter-spacing:-.03em;
+    margin:0;
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .8s var(--ease), transform .8s var(--ease);
+  }
+  .reveal.in{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:50;
+    height:56px;
+    display:flex;
+    align-items:center;
+    background:rgba(255,255,255,0);
+    border-bottom:1px solid transparent;
+    transition:background .3s ease, border-color .3s ease, backdrop-filter .3s ease;
+  }
+  header.scrolled{
+    background:rgba(255,255,255,.78);
+    backdrop-filter:blur(16px) saturate(180%);
+    -webkit-backdrop-filter:blur(16px) saturate(180%);
+    border-bottom-color:var(--line);
+  }
+  nav.wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+  }
+  .logo{
+    font-weight:800;
+    font-size:.95rem;
+    letter-spacing:-.02em;
+    display:flex;align-items:center;gap:6px;
+  }
+  .logo .d{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  nav ul{
+    list-style:none;
+    display:flex;
+    gap:30px;
+    margin:0;padding:0;
+  }
+  nav ul a{
+    font-size:.82rem;
+    color:var(--ink);
+    opacity:.75;
+    transition:opacity .2s ease;
+  }
+  nav ul a:hover{opacity:1;}
+  .nav-cta{
+    font-size:.78rem;
+    font-weight:600;
+    background:var(--ink);
+    color:var(--white);
+    padding:8px 16px;
+    border-radius:999px;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    position:relative;
+    padding:120px 24px 80px;
+  }
+  .hero-spot{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:radial-gradient(600px circle at var(--mx,50%) var(--my,20%), rgba(0,113,227,.06), transparent 60%);
+    transition:background .1s ease;
+  }
+  .eyebrow{
+    font-size:.82rem;
+    font-weight:600;
+    color:var(--gray);
+    margin-bottom:22px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .eyebrow .live{
+    width:6px;height:6px;border-radius:50%;
+    background:#2FAE60;
+    box-shadow:0 0 0 3px rgba(47,174,96,.18);
+  }
+  .hero h1{
+    font-size:clamp(2.8rem,8vw,6.6rem);
+    line-height:1.02;
+    background:linear-gradient(100deg,#1D1D1F 20%,#6E6E73 40%,#1D1D1F 60%,#3D3D40 80%);
+    background-size:220% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation:sheen 7s linear infinite;
+  }
+  @keyframes sheen{
+    0%{background-position:0% 50%;}
+    100%{background-position:220% 50%;}
+  }
+  @media (prefers-reduced-motion:reduce){ .hero h1{animation:none;} }
+
+  .hero p.sub{
+    margin:26px 0 0;
+    font-size:clamp(1.05rem,1.6vw,1.3rem);
+    color:var(--gray);
+    max-width:560px;
+    font-weight:500;
+  }
+  .hero-cta{
+    margin-top:38px;
+    display:flex;
+    gap:14px;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:.92rem;
+    font-weight:600;
+    padding:13px 24px;
+    border-radius:999px;
+    transition:transform .25s var(--ease), background .2s ease, box-shadow .2s ease;
+  }
+  .btn.solid{background:var(--ink);color:var(--white);}
+  .btn.outline{border:1px solid var(--line);color:var(--ink);}
+  .btn.accent{background:var(--accent);color:#fff;}
+  .btn.accent:hover{background:var(--accent-deep);}
+  .btn:hover{box-shadow:0 10px 26px -10px rgba(0,0,0,.35);}
+
+  .scroll-cue{
+    position:absolute;
+    bottom:34px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    color:var(--gray);
+    font-size:.72rem;
+  }
+  .scroll-cue .chev{
+    width:14px;height:14px;
+    border-right:1.5px solid var(--gray);
+    border-bottom:1.5px solid var(--gray);
+    transform:rotate(45deg);
+    animation:bounce 1.8s ease-in-out infinite;
+  }
+  @keyframes bounce{
+    0%,100%{transform:rotate(45deg) translate(0,0);}
+    50%{transform:rotate(45deg) translate(4px,4px);}
+  }
+
+  /* ---------- MARQUEE ---------- */
+  .marquee-strip{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:22px 0;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .marquee-track{
+    display:inline-flex;
+    gap:56px;
+    animation:marquee 26s linear infinite;
+  }
+  .marquee-track span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.85rem;
+    color:var(--gray);
+    letter-spacing:.02em;
+  }
+  @keyframes marquee{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+  @media (prefers-reduced-motion:reduce){ .marquee-track{animation:none;} }
+
+  /* ---------- SECTION generic ---------- */
+  section{padding:120px 0;}
+  .section-head{
+    text-align:center;
+    max-width:640px;
+    margin:0 auto 64px;
+  }
+  .section-head .tag{
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    display:block;
+    margin-bottom:14px;
+  }
+  .section-head h2{
+    font-size:clamp(2rem,4vw,3rem);
+  }
+  .section-head p{
+    color:var(--gray);
+    font-size:1.05rem;
+    margin-top:16px;
+  }
+
+  /* ---------- ABOUT stats ---------- */
+  .about-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:70px;
+    align-items:center;
+  }
+  .about-layout p{
+    font-size:1.3rem;
+    line-height:1.5;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .about-layout p b{font-weight:800;}
+  .stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:34px 24px;
+  }
+  .stat .num{
+    font-size:clamp(2.2rem,4vw,3.2rem);
+    font-weight:800;
+    letter-spacing:-.03em;
+  }
+  .stat .num span{color:var(--accent);}
+  .stat .lbl{
+    font-size:.85rem;
+    color:var(--gray);
+    margin-top:4px;
+  }
+
+  /* ---------- FEATURED WORK (full bleed) ---------- */
+  .feature{
+    padding:130px 0;
+  }
+  .feature.dark{
+    background:var(--black);
+    color:var(--white);
+  }
+  .feature.light{background:var(--surface);}
+  .feature-inner{
+    max-width:760px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .feature .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:block;
+    margin-bottom:18px;
+  }
+  .feature.dark .tag{color:#5AA9FF;}
+  .feature h3{
+    font-size:clamp(2.2rem,5vw,3.6rem);
+    margin-bottom:18px;
+  }
+  .feature p.desc{
+    font-size:1.1rem;
+    color:var(--gray);
+    max-width:520px;
+    margin:0 auto 30px;
+  }
+  .feature.dark p.desc{color:#A1A1A6;}
+  .chip-row{
+    display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:32px;
+  }
+  .chip{
+    font-size:.78rem;
+    font-family:'IBM Plex Mono',monospace;
+    padding:6px 13px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    color:var(--gray);
+  }
+  .feature.dark .chip{border-color:#39393D;color:#C7C7CC;}
+  .feature-shot{
+    height:280px;
+    border-radius:24px;
+    margin-top:44px;
+    position:relative;
+    overflow:hidden;
+  }
+  .feature-shot::after{
+    content:"";
+    position:absolute;inset:0;
+    background:radial-gradient(circle at 25% 20%, rgba(255,255,255,.4), transparent 55%);
+  }
+  .shot-1{background:linear-gradient(135deg,#2b2b2e,#0c0c0d);}
+  .shot-2{background:linear-gradient(135deg,#e9e6df,#cfc9bb);}
+
+  /* ---------- WORK grid ---------- */
+  .work-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:24px;
+  }
+  .work-card{
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:28px;
+    background:var(--white);
+    transition:transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s ease;
+  }
+  .work-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 24px 44px -24px rgba(0,0,0,.25);
+    border-color:transparent;
+  }
+  .work-thumb{
+    height:150px;
+    border-radius:14px;
+    margin-bottom:20px;
+  }
+  .wt-1{background:linear-gradient(135deg,#F0EEE7,#D9D3C4);}
+  .wt-2{background:linear-gradient(135deg,#111,#3d3d3d);}
+  .wt-3{background:linear-gradient(135deg,#EAF1FF,#C7DBFF);}
+  .wt-4{background:linear-gradient(135deg,#FFF0E9,#FFD5BE);}
+  .work-card h3{font-size:1.15rem;margin-bottom:8px;font-weight:700;}
+  .work-card p{font-size:.9rem;color:var(--gray);margin:0 0 16px;}
+  .work-card .tag-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .work-card .tag{
+    font-size:.7rem;
+    padding:4px 10px;
+    border-radius:999px;
+    background:var(--surface);
+    color:var(--gray);
+    border:none;
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  /* ---------- APPROACH ---------- */
+  .approach-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:28px;
+  }
+  .approach-item{text-align:center;}
+  .approach-item .ico{
+    width:52px;height:52px;
+    border-radius:16px;
+    background:var(--surface);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+    font-size:1.4rem;
+  }
+  .approach-item h3{font-size:1rem;margin-bottom:8px;}
+  .approach-item p{font-size:.86rem;color:var(--gray);margin:0;}
+
+  /* ---------- CONTACT ---------- */
+  .contact{
+    background:var(--black);
+    color:var(--white);
+    text-align:center;
+    padding:140px 0;
+  }
+  .contact h2{
+    font-size:clamp(2.4rem,5.5vw,4.2rem);
+  }
+  .contact p{
+    color:#A1A1A6;
+    margin:20px auto 40px;
+    max-width:440px;
+    font-size:1.05rem;
+  }
+  .contact .btn.accent{padding:16px 32px;font-size:1rem;}
+
+  footer{
+    background:var(--black);
+    color:#8A8A8E;
+    padding:0 0 50px;
+    text-align:center;
+    font-size:.82rem;
+  }
+  footer .fline{
+    border-top:1px solid #2A2A2D;
+    margin:0 auto 30px;
+    max-width:var(--max);
+  }
+
+  @media (max-width:900px){
+    nav ul{display:none;}
+    .about-layout{grid-template-columns:1fr;}
+    .work-grid{grid-template-columns:1fr;}
+    .approach-grid{grid-template-columns:1fr 1fr;}
+    section{padding:90px 0;}
+    .feature{padding:90px 0;}
+    .wrap{padding:0 22px;}
+  }
+</style>
 </head>
 <body>
-    <h1>안녕하세요 새싹 서초 3기 입니다 </h1>
-    <img src="https://i.namu.wiki/i/GqTBRZSn-v4Q0Up_dY-bHHUg0_2V6x7ygKPF8Dnt-H7L2oibPBwVP10kWgrKDEuwWGWGMu-dfnugCNDoDVbUIg.webp" alt="">
+
+<header id="siteHeader">
+  <nav class="wrap">
+    <div class="logo"><span class="d"></span>jjssoo</div>
+    <ul>
+      <li><a href="#about">소개</a></li>
+      <li><a href="#work">작업</a></li>
+      <li><a href="#approach">방식</a></li>
+      <li><a href="#contact">연락</a></li>
+    </ul>
+    <a class="nav-cta" href="#contact">연락하기</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="heroSection">
+    <div class="hero-spot" id="heroSpot"></div>
+    <div class="eyebrow"><span class="live"></span>프로젝트 문의 · Seoul</div>
+    <h1>jjssoo</h1>
+    <p class="sub">Product Designer, in Seoul.</p>
+    <div class="hero-cta">
+      <a class="btn solid" href="#work">작업 보기</a>
+      <a class="btn outline" href="#contact">연락하기</a>
+    </div>
+    <div class="scroll-cue"><span class="chev"></span></div>
+  </section>
+
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span>FIGMA</span><span>·</span><span>N8N</span><span>·</span><span>RAG</span><span>·</span><span>SQL</span><span>·</span>
+      <span>FIGMA</span><span>·</span><span>N8N</span><span>·</span><span>RAG</span><span>·</span><span>SQL</span><span>·</span>
+      <span>FIGMA</span><span>·</span><span>N8N</span><span>·</span><span>RAG</span><span>·</span><span>SQL</span><span>·</span>
+      <span>FIGMA</span><span>·</span><span>N8N</span><span>·</span><span>RAG</span><span>·</span><span>SQL</span><span>·</span>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="wrap about-layout">
+      <p class="reveal">화면을 예쁘게 그리는 것보다, <b>브랜드가 파는 이유</b>를 화면에 담는 일을 해요. 디자인부터 자동화·데이터까지 넘나들며 옷을 파는 팀들과 함께 일합니다.</p>
+      <div class="stats">
+        <div class="stat reveal">
+          <div class="num" data-count="6">0</div>
+          <div class="lbl">의류 브랜드 프로젝트</div>
+        </div>
+        <div class="stat reveal">
+          <div class="num"><span data-count="4">0</span>년차</div>
+          <div class="lbl">프로덕트 디자인 경력</div>
+        </div>
+        <div class="stat reveal">
+          <div class="num"><span data-count="12">0</span>만+</div>
+          <div class="lbl">누적 사용자</div>
+        </div>
+        <div class="stat reveal">
+          <div class="num"><span data-count="30">0</span>%</div>
+          <div class="lbl">평균 전환율 개선</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" style="padding-top:0;padding-bottom:0;">
+    <div class="feature dark reveal">
+      <div class="wrap feature-inner">
+        <span class="tag">Featured — 01</span>
+        <h3>ATELIER 09</h3>
+        <p class="desc">컨템포러리 여성복 브랜드의 이커머스를 처음부터 다시 설계했어요. Figma로 전체 디자인 시스템을 구축하고, SQL 대시보드로 재구매율을 추적했습니다.</p>
+        <div class="chip-row">
+          <span class="chip">Figma</span>
+          <span class="chip">디자인 시스템</span>
+          <span class="chip">SQL 대시보드</span>
+        </div>
+        <div class="feature-shot shot-1"></div>
+      </div>
+    </div>
+
+    <div class="feature light reveal">
+      <div class="wrap feature-inner">
+        <span class="tag">Featured — 02</span>
+        <h3>코드나인</h3>
+        <p class="desc">한정판 드롭 커머스에 RAG 기반 스타일 상담 챗봇을 붙였어요. 재고 문의부터 사이즈 추천까지, 상담원 없이도 응답률 92%를 달성했습니다.</p>
+        <div class="chip-row">
+          <span class="chip">RAG</span>
+          <span class="chip">챗봇 UX</span>
+          <span class="chip">n8n 자동화</span>
+        </div>
+        <div class="feature-shot shot-2"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="tag">More Work</span>
+        <h2>그 밖의 프로젝트</h2>
+        <p>서울 기반 의류 브랜드들과 함께한 작업들이에요.</p>
+      </div>
+      <div class="work-grid">
+        <div class="work-card reveal">
+          <div class="work-thumb wt-1"></div>
+          <h3>GRID Seoul</h3>
+          <p>스트리트웨어 D2C 플랫폼의 앱 전체 리디자인. 필터·검색 흐름을 다시 짜서 탐색 이탈률을 줄였어요.</p>
+          <div class="tag-row">
+            <span class="tag">앱 리디자인</span>
+            <span class="tag">Figma</span>
+          </div>
+        </div>
+        <div class="work-card reveal">
+          <div class="work-thumb wt-2"></div>
+          <h3>무브먼트</h3>
+          <p>애슬레저 브랜드 앱의 사이즈 추천 플로우 설계. 반품률을 데이터로 추적해 지속적으로 개선했어요.</p>
+          <div class="tag-row">
+            <span class="tag">SQL</span>
+            <span class="tag">플로우 설계</span>
+          </div>
+        </div>
+        <div class="work-card reveal">
+          <div class="work-thumb wt-3"></div>
+          <h3>선데이모먼트</h3>
+          <p>편집숍 멤버십 시스템 UX. 등급별 혜택 안내와 알림 자동화를 n8n으로 연결했어요.</p>
+          <div class="tag-row">
+            <span class="tag">n8n</span>
+            <span class="tag">멤버십 UX</span>
+          </div>
+        </div>
+        <div class="work-card reveal">
+          <div class="work-thumb wt-4"></div>
+          <h3>블랭크레이블</h3>
+          <p>미니멀 베이직 브랜드의 룩북형 랜딩 페이지. 제품보다 소재와 핏을 먼저 보여주는 구성으로 설계했어요.</p>
+          <div class="tag-row">
+            <span class="tag">랜딩 페이지</span>
+            <span class="tag">브랜딩</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="approach">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="tag">Approach</span>
+        <h2>일하는 방식</h2>
+        <p>디자인, 자동화, 데이터를 한 사람이 오가며 만들어요.</p>
+      </div>
+      <div class="approach-grid">
+        <div class="approach-item reveal">
+          <div class="ico">🎯</div>
+          <h3>디자인</h3>
+          <p>Figma로 리서치부터 하이파이 프로토타입까지</p>
+        </div>
+        <div class="approach-item reveal">
+          <div class="ico">🔗</div>
+          <h3>자동화</h3>
+          <p>n8n으로 반복 업무와 알림을 자동으로 연결</p>
+        </div>
+        <div class="approach-item reveal">
+          <div class="ico">💬</div>
+          <h3>AI 상담</h3>
+          <p>RAG 기반 챗봇으로 응대 리소스 절감</p>
+        </div>
+        <div class="approach-item reveal">
+          <div class="ico">📊</div>
+          <h3>데이터</h3>
+          <p>SQL로 지표를 직접 뽑아 의사결정에 반영</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <h2 class="reveal">함께 만들어요</h2>
+      <p class="reveal">새 프로젝트든, 막혀있는 문제든 좋아요.<br>가볍게 이야기부터 시작해요.</p>
+      <a class="btn accent reveal" href="mailto:hello@jjssoo.design">이메일 보내기</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="fline"></div>
+  © 2026 jjssoo · Seoul, Korea
+</footer>
+
+<script>
+  // nav blur on scroll
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // reveal on scroll
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealEls = document.querySelectorAll('.reveal');
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('in'), i * 40);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
+  }
+
+  // count-up stats
+  const counters = document.querySelectorAll('[data-count]');
+  if ('IntersectionObserver' in window) {
+    const cio = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.getAttribute('data-count'), 10);
+          if (reduceMotion) { el.textContent = target; cio.unobserve(el); return; }
+          let start = 0;
+          const dur = 1200;
+          const t0 = performance.now();
+          function tick(t){
+            const p = Math.min((t - t0) / dur, 1);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(eased * target);
+            if (p < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+          cio.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(el => cio.observe(el));
+  }
+
+  // subtle hero cursor spotlight
+  const heroSection = document.getElementById('heroSection');
+  const heroSpot = document.getElementById('heroSpot');
+  if (!reduceMotion && heroSection) {
+    heroSection.addEventListener('mousemove', (e) => {
+      const rect = heroSection.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      heroSpot.style.setProperty('--mx', x + '%');
+      heroSpot.style.setProperty('--my', y + '%');
+    }, { passive: true });
+  }
+
+  // magnetic buttons
+  if (!reduceMotion) {
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const x = e.clientX - r.left - r.width / 2;
+        const y = e.clientY - r.top - r.height / 2;
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.3}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  }
+</script>
+
 </body>
 </html>
